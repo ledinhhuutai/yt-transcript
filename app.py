@@ -3,6 +3,7 @@ from flask_cors import CORS
 from youtube_transcript_api import YouTubeTranscriptApi
 import re
 from urllib.parse import urlparse, parse_qs
+from yt_transcript.fetch import get_transcript
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -47,12 +48,18 @@ def home():
         "message": "YouTube Transcript API",
         "endpoints": {
             "/transcript": {
-                "method": "GET or POST",
+                "methods": ["GET", "POST"],
+                "description": "Get YouTube video transcript with automatic language detection",
                 "parameters": {
-                    "url": "YouTube video URL or video ID",
-                    "video_id": "YouTube video ID (alternative to url)"
+                    "url": "YouTube video URL (optional if video_id provided)",
+                    "video_id": "YouTube video ID (optional if url provided)",
+                    "languages": "Comma-separated language codes (optional, defaults to 'en,vi,zh,es,fr,de,ja,ko')"
                 },
-                "description": "Get transcript for a YouTube video"
+                "examples": {
+                    "GET": "/transcript?url=https://www.youtube.com/watch?v=VIDEO_ID&languages=en,vi",
+                    "POST": '{"url": "https://www.youtube.com/watch?v=VIDEO_ID", "languages": ["en", "vi"]}'
+                },
+                "supported_languages": ["en", "vi", "zh", "es", "fr", "de", "ja", "ko", "and many more"]
             }
         },
         "examples": {
@@ -62,7 +69,7 @@ def home():
     })
 
 @app.route("/transcript", methods=["GET", "POST"])
-def get_transcript():
+def get_transcript_endpoint():
     """
     Get transcript for a YouTube video
     Accepts both GET and POST requests
@@ -72,10 +79,14 @@ def get_transcript():
         if request.method == "GET":
             url = request.args.get("url")
             video_id = request.args.get("video_id")
+            languages = request.args.get('languages', 'en,vi,zh,es,fr,de,ja,ko').split(',')
         else:  # POST
             data = request.get_json() or {}
             url = data.get("url")
             video_id = data.get("video_id")
+            languages = data.get('languages', ['en', 'vi', 'zh', 'es', 'fr', 'de', 'ja', 'ko'])
+            if isinstance(languages, str):
+                languages = languages.split(',')
         
         # Determine video ID
         if url:
@@ -90,9 +101,8 @@ def get_transcript():
                 "message": "Please provide a valid YouTube URL or video ID"
             }), 400
         
-        # Get transcript
-        api = YouTubeTranscriptApi()
-        transcript_data = api.fetch(video_id)
+        # Get transcript with language preferences
+        transcript_data = get_transcript(video_id, languages)
         
         # Format transcript for easier consumption
         formatted_transcript = []
