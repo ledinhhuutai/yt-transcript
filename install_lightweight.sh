@@ -1,7 +1,9 @@
 #!/bin/bash
 
-# Script cài đặt YouTube Transcript API cho VPS yếu
-# Sử dụng: bash install_lightweight.sh
+# Script cài đặt YouTube Transcript API tối ưu cho VPS low-resource
+# Sử dụng: sudo bash install_lightweight.sh
+
+PROJECT_DIR="/var/www/yt-transcript"
 
 echo "=== Cài đặt YouTube Transcript API cho VPS yếu ==="
 

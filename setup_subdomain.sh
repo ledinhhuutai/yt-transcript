@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Script cấu hình subdomain transcript.note.inonappstudio.com
+# Script cấu hình subdomain transcript.inonappstudio.com cho YouTube Transcript API
 # Sử dụng: bash setup_subdomain.sh
 
-DOMAIN="transcript.note.inonappstudio.com"
-MAIN_DOMAIN="note.inonappstudio.com"
+DOMAIN="transcript.inonappstudio.com"
+MAIN_DOMAIN="inonappstudio.com"
+NGINX_CONFIG_NAME="transcript.inonappstudio.com"
 
 echo "=== Cấu hình subdomain $DOMAIN ==="
 
